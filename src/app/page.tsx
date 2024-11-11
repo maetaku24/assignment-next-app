@@ -1,29 +1,32 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import classes from "../app/_styles/Home.module.css";
 import Link from "next/link";
-import { Post } from "@/app/_interfaces/interfaces"; 
+import { MicroCmsPost } from "./_interfaces/MicroCmsPost";
 
 const Home: React.FC = () => {
-
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<MicroCmsPost[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetcher = async () => {
       setLoading(true);
-      const res = await fetch("https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts");
-      const data = await res.json();
-      setPosts(data.posts);
+      const res = await fetch("https://182j0l8mox.microcms.io/api/v1/posts", {
+        headers: {
+          "X-MICROCMS-API-KEY": process.env
+            .NEXT_PUBLIC_MICROCMS_API_KEY as string,
+        },
+      });
+      const { contents } = await res.json();
+      setPosts(contents);
       setLoading(false);
-    }
+    };
 
-    fetcher()
-  }, [])
+    fetcher();
+  }, []);
 
-  if (loading) return <div className={classes.postloading}>読み込み中...</div>
-
+  if (loading) return <div className={classes.postloading}>読み込み中...</div>;
 
   return (
     <div>
@@ -42,7 +45,7 @@ const Home: React.FC = () => {
                         {post.categories.map((category, id) => {
                           return (
                             <p key={id} className={classes.postCategory}>
-                              {category}
+                              {category.name}
                             </p>
                           );
                         })}

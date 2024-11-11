@@ -1,9 +1,9 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import classes from "../styles/Home.module.css";
+import classes from "../app/_styles/Home.module.css";
 import Link from "next/link";
-import { Post } from "@/interfaces/interfaces"; 
+import { Post } from "@/app/_interfaces/interfaces"; 
 
 const Home: React.FC = () => {
 

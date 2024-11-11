@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import classes from "../../../styles/Detail.module.css";
-import { Post } from "@/interfaces/interfaces";
+import classes from "../../_styles/Detail.module.css";
+import { Post } from "@/app/_interfaces/interfaces";
 
 const Detail: React.FC = () => {
   const { id } = useParams<{ id: string }>();

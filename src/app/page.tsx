@@ -3,30 +3,20 @@
 import React, { useEffect, useState } from "react";
 import classes from "../app/_styles/Home.module.css";
 import Link from "next/link";
-import { MicroCmsPost } from "./_interfaces/MicroCmsPost";
+import { Post } from "./_interfaces/Post";
 
-const Home: React.FC = () => {
-  const [posts, setPosts] = useState<MicroCmsPost[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+export default function Home() {
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const fetcher = async () => {
-      setLoading(true);
-      const res = await fetch("https://182j0l8mox.microcms.io/api/v1/posts", {
-        headers: {
-          "X-MICROCMS-API-KEY": process.env
-            .NEXT_PUBLIC_MICROCMS_API_KEY as string,
-        },
-      });
-      const { contents } = await res.json();
-      setPosts(contents);
-      setLoading(false);
+      const res = await fetch("/api/posts");
+      const { posts } = await res.json();
+      setPosts(posts);
     };
 
     fetcher();
   }, []);
-
-  if (loading) return <div className={classes.postloading}>読み込み中...</div>;
 
   return (
     <div>
@@ -42,10 +32,13 @@ const Home: React.FC = () => {
                         {new Date(post.createdAt).toLocaleDateString()}
                       </div>
                       <div className={classes.postCategories}>
-                        {post.categories.map((category, id) => {
+                        {post.postCategories.map((postCategories) => {
                           return (
-                            <p key={id} className={classes.postCategory}>
-                              {category.name}
+                            <p
+                              key={postCategories.category.id}
+                              className={classes.postCategory}
+                            >
+                              {postCategories.category.name}
                             </p>
                           );
                         })}
@@ -66,6 +59,4 @@ const Home: React.FC = () => {
       </ul>
     </div>
   );
-};
-
-export default Home;
+}

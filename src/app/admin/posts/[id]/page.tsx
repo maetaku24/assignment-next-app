@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { PostForm } from "@/app/_componets/PostForm";
+import { PostForm } from "@/app/admin/posts/_componets/PostForm";
 import { Category } from "@/app/_interfaces/Categories";
 import { Post } from "@/app/_interfaces/Post";
 

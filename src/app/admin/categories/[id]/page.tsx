@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Post } from "@/app/_interfaces/Post";
-import { CategoryForm } from "@/app/_componets/CategoryForm";
+import { CategoryForm } from "@/app/admin/categories/_components/CategoryForm";
 
 export default function Page() {
   const [name, setName] = useState("");

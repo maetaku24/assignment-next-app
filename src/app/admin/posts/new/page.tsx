@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PostForm } from "@/app/_componets/PostForm";
+import { PostForm } from "@/app/admin/posts/_componets/PostForm";
 import { Category } from "@/app/_interfaces/Categories";
 
 export default function Page() {

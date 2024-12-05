@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Category } from "@/app/_interfaces/Categories";
-import { CategoriesSelect } from "../../../_componets/CategoriesSelect";
+import { CategoriesSelect } from "./CategoriesSelect";
 
 interface Props {
   mode: "new" | "edit";

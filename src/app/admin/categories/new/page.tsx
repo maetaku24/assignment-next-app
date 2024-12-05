@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CategoryForm } from "@/app/_componets/CategoryForm";
+import { CategoryForm } from "@/app/admin/categories/_components/CategoryForm";
 
 export default function Paga() {
   const [name, setName] = useState("");

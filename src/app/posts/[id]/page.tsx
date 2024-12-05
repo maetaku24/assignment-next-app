@@ -4,44 +4,38 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import classes from "../../_styles/Detail.module.css";
-import { MicroCmsPost } from "@/app/_interfaces/MicroCmsPost";
+import { Post } from "@/app/_interfaces/Post";
 
-const Detail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [post, setPost] = useState<MicroCmsPost | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+export default function Page() {
+  const { id } = useParams();
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetcher = async () => {
       setLoading(true);
-      const res = await fetch(
-        `https://182j0l8mox.microcms.io/api/v1/posts/${id}`,
-        {
-          headers: {
-            "X-MICROCMS-API-KEY": process.env
-              .NEXT_PUBLIC_MICROCMS_API_KEY as string,
-          },
-        }
-      );
-      const data = await res.json();
-      setPost(data);
+      const res = await fetch(`/api/posts/${id}`);
+      const { post } = await res.json();
+      setPost(post);
       setLoading(false);
     };
 
     fetcher();
   }, [id]);
 
-  if (loading) return <div className={classes.postloading}>読み込み中...</div>;
-  if (!post)
-    return (
-      <div className={classes.postError}>記事が見つかりませんでした。</div>
-    );
+  if (loading) {
+    return <div>読み込み中...</div>;
+  }
+
+  if (!post) {
+    return <div>記事が見つかりません</div>;
+  }
 
   return (
     <div className={classes.container}>
       <div className={classes.post}>
         <div className={classes.postImage}>
-          <Image height={1000} width={1000} src={post.thumbnail.url} alt="" />
+          <Image src={post.thumbnailUrl} alt="" height={1000} width={1000} />
         </div>
         <div className={classes.postContent}>
           <div className={classes.postInfo}>
@@ -49,24 +43,25 @@ const Detail: React.FC = () => {
               {new Date(post.createdAt).toLocaleDateString()}
             </div>
             <div className={classes.postCategories}>
-              {post.categories.map((category, id) => {
+              {post.postCategories.map((postCategory) => {
                 return (
-                  <p key={id} className={classes.postCategory}>
-                    {category.name}
-                  </p>
+                  <div
+                    key={postCategory.category.id}
+                    className={classes.postCategory}
+                  >
+                    {postCategory.category.name}
+                  </div>
                 );
               })}
             </div>
           </div>
-          <p className={classes.postTitle}>{post.title}</p>
+          <div className={classes.postTitle}>{post.title}</div>
           <div
             className={classes.postBody}
-            dangerouslySetInnerHTML={{ __html: post.content || "" }}
+            dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </div>
       </div>
     </div>
   );
-};
-
-export default Detail;
+}

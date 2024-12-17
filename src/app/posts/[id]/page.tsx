@@ -5,11 +5,16 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import classes from "../../_styles/Detail.module.css";
 import { Post } from "@/app/_interfaces/Post";
+import { supabase } from "@/utils/supabase";
 
 export default function Page() {
   const { id } = useParams();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(
+    null
+  );
 
   useEffect(() => {
     const fetcher = async () => {
@@ -23,6 +28,22 @@ export default function Page() {
     fetcher();
   }, [id]);
 
+  useEffect(() => {
+    if (!post?.thumbnailImageKey) return;
+
+    const fetcher = async () => {
+      const {
+        data: { publicUrl },
+      } = await supabase.storage
+        .from("post_thumbnail")
+        .getPublicUrl(post.thumbnailImageKey);
+
+      setThumbnailImageUrl(publicUrl);
+    };
+
+    fetcher();
+  }, [post?.thumbnailImageKey]);
+
   if (loading) {
     return <div>読み込み中...</div>;
   }
@@ -35,7 +56,11 @@ export default function Page() {
     <div className={classes.container}>
       <div className={classes.post}>
         <div className={classes.postImage}>
-          <Image src={post.thumbnailUrl} alt="" height={1000} width={1000} />
+        {thumbnailImageUrl && (
+          <div className={classes.postImage}>
+            <Image src={thumbnailImageUrl} alt="" height={1000} width={1000} />
+          </div>
+        )}
         </div>
         <div className={classes.postContent}>
           <div className={classes.postInfo}>

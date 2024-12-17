@@ -5,14 +5,16 @@ import { useParams, useRouter } from "next/navigation";
 import { PostForm } from "@/app/admin/posts/_componets/PostForm";
 import { Category } from "@/app/_interfaces/Categories";
 import { Post } from "@/app/_interfaces/Post";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function Page() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [thumbnailImageKey, setThumbnailImageKey] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const { id } = useParams();
   const router = useRouter();
+  const { token } = useSupabaseSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +24,9 @@ export default function Page() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token!,
         },
-        body: JSON.stringify({ title, content, thumbnailUrl, categories }),
+        body: JSON.stringify({ title, content, thumbnailImageKey, categories }),
       });
 
       alert("記事を更新しました。");
@@ -38,6 +41,10 @@ export default function Page() {
 
       await fetch(`/api/admin/posts/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
       });
 
       alert("記事を削除しました。");
@@ -48,16 +55,23 @@ export default function Page() {
   };
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
-      const res = await fetch(`/api/admin/posts/${id}`);
+      const res = await fetch(`/api/admin/posts/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
       const { post }: { post: Post } = await res.json();
       setTitle(post.title);
       setContent(post.content);
-      setThumbnailUrl(post.thumbnailUrl);
+      setThumbnailImageKey(post.thumbnailImageKey);
       setCategories(post.postCategories.map((pc) => pc.category));
     };
     fetcher();
-  }, [id]);
+  }, [id, token]);
 
   return (
     <div className="container mx-auto px-4">
@@ -71,8 +85,8 @@ export default function Page() {
         setTitle={setTitle}
         content={content}
         setContent={setContent}
-        thumbnailUrl={thumbnailUrl}
-        setThumbnailUrl={setThumbnailUrl}
+        thumbnailImageKey={thumbnailImageKey}
+        setThumbnailImageKey={setThumbnailImageKey}
         categories={categories}
         setCategories={setCategories}
         onSubmit={handleSubmit}

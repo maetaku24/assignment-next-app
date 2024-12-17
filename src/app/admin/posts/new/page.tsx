@@ -4,15 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PostForm } from "@/app/admin/posts/_componets/PostForm";
 import { Category } from "@/app/_interfaces/Categories";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function Page() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [thumbnailUrl, setThumbnailUrl] = useState(
+  const [thumbnailImageKey, setThumbnailImageKey] = useState(
     "https://placehold.jp/800x400.png"
   );
   const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
+  const { token } = useSupabaseSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +24,9 @@ export default function Page() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token!,
         },
-        body: JSON.stringify({ title, content, thumbnailUrl, categories }),
+        body: JSON.stringify({ title, content, thumbnailImageKey, categories }),
       });
       const { id } = await res.json();
       router.push(`/admin/posts/${id}`);
@@ -44,8 +47,8 @@ export default function Page() {
         setTitle={setTitle}
         content={content}
         setContent={setContent}
-        thumbnailUrl={thumbnailUrl}
-        setThumbnailUrl={setThumbnailUrl}
+        thumbnailImageKey={thumbnailImageKey}
+        setThumbnailImageKey={setThumbnailImageKey}
         categories={categories}
         setCategories={setCategories}
         onSubmit={handleSubmit}

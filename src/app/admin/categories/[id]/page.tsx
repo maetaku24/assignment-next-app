@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { CategoryForm } from "@/app/admin/categories/_components/CategoryForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function Page() {
   const [name, setName] = useState("");
   const { id } = useParams();
   const router = useRouter();
+  const { token } = useSupabaseSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +19,7 @@ export default function Page() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token!,
         },
         body: JSON.stringify({ name }),
       });
@@ -33,6 +36,10 @@ export default function Page() {
 
       await fetch(`/api/admin/categories/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
       });
 
       alert("記事を削除しました。");
@@ -43,14 +50,21 @@ export default function Page() {
   };
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
-      const res = await fetch(`/api/admin/categories/${id}`);
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
       const { category } = await res.json();
       setName(category.name);
     };
 
     fetcher();
-  }, [id]);
+  }, [id, token]);
 
   return (
     <div className="container mx-auto px-4">
@@ -66,5 +80,5 @@ export default function Page() {
         onDelete={handleDelete}
       />
     </div>
-  )
+  );
 }

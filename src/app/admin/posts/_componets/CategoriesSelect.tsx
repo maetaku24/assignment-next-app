@@ -7,6 +7,7 @@ import Select from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
 import { Category } from "@/app/_interfaces/Categories";
 import { useEffect } from "react";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 interface Props {
   selectedCategories: Category[];
@@ -18,6 +19,7 @@ export const CategoriesSelect: React.FC<Props> = ({
   setSelectedCategories,
 }) => {
   const [categories, setCategories] = React.useState<Category[]>([]);
+  const { token } = useSupabaseSession();
 
   const handleChange = (value: number[]) => {
     value.forEach((v: number) => {
@@ -34,14 +36,21 @@ export const CategoriesSelect: React.FC<Props> = ({
   };
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
-      const res = await fetch("/api/admin/categories");
+      const res = await fetch("/api/admin/categories", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
       const { categories } = await res.json();
       setCategories(categories);
     };
 
     fetcher();
-  }, []);
+  }, [token]);
 
   return (
     <FormControl className="w-full">

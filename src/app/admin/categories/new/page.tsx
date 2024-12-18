@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CategoryForm } from "@/app/admin/categories/_components/CategoryForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function Paga() {
   const [name, setName] = useState("");
   const router = useRouter();
+  const { token } = useSupabaseSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +18,7 @@ export default function Paga() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token!,
         },
         body: JSON.stringify({ name }),
       });
@@ -40,5 +43,5 @@ export default function Paga() {
         onSubmit={handleSubmit}
       />
     </div>
-  )
+  );
 }

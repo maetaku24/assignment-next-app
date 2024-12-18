@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { supabase } from "@/utils/supabase";
+import { Category } from "@/app/_interfaces/Categories";
 
 const prisma = new PrismaClient();
 
@@ -77,15 +78,12 @@ export const PUT = async (
     })
 
     // 記事とカテゴリーの中間テーブルのレコードをDBに生成
-    // 本来複数同時生成には、createManyというメソッドがあるが、sqliteではcreateManyが使えないので、for文1つずつ実施
-    for (const category of categories) {
-      await prisma.postCategory.create({
-        data: {
-          categoryId: category.id,
-          postId: data.id,
-        },
-      })
-    }
+    await prisma.postCategory.createMany({
+      data: categories.map((category: Category) => ({
+        categoryId: category.id,
+        postId: data.id,
+      })),
+    });
 
     // レスポンスを返す
     return NextResponse.json({
@@ -107,6 +105,12 @@ export const DELETE = async (
 ) => {
   // paramsの中にidが入っているので、それを取り出す
   const { id } = params;
+  const token = request.headers.get("Authorization") ?? "";
+  const { error } = await supabase.auth.getUser(token);
+
+  if (error) {
+    return NextResponse.json({ status: error.message }, { status: 400 });
+  }
 
   try {
     // idを指定して、Postを削除
